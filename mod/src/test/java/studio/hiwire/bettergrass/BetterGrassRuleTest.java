@@ -1,8 +1,11 @@
 package studio.hiwire.bettergrass;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.hypixel.hytale.protocol.BlockMaterial;
+import com.hypixel.hytale.protocol.Opacity;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import java.util.HashMap;
 import java.util.List;
@@ -130,8 +133,8 @@ class BetterGrassRuleTest {
   }
 
   @Test
-  @DisplayName("a corner qualifying on one of two exposed sides still converts")
-  void mixedCornerConverts() {
+  @DisplayName("a corner qualifying on only one of two exposed sides stays fringed")
+  void mixedCornerStaysBase() {
     final var world =
         new FakeWorld()
             .set(0, 10, 0, grassId)
@@ -141,9 +144,11 @@ class BetterGrassRuleTest {
             .set(1, 9, 0, grassId)
             .set(0, 9, 1, STONE_ID);
 
-    // One qualifying face is enough; the stone side turns to grass too, which is the accepted
-    // cost of a per-block decision standing in for a per-face one.
-    assertEquals(grassFullId, BetterGrassRule.desiredBlock(world, variants, occlusion, 0, 10, 0));
+    // Every exposed face must qualify, so the drop to stone keeps this block fringed rather than
+    // showing grass above bare rock.
+    assertEquals(
+        BetterGrassRule.NO_CHANGE,
+        BetterGrassRule.desiredBlock(world, variants, occlusion, 0, 10, 0));
   }
 
   @Test
@@ -286,5 +291,22 @@ class BetterGrassRuleTest {
     assertEquals(
         BetterGrassRule.NO_CHANGE,
         BetterGrassRule.desiredBlock(world, variants, occlusion, 0, 10, 0));
+  }
+
+  @Test
+  @DisplayName("a solid full cube hides the face behind it, whatever its opacity mode")
+  void occlusionAcceptsCutout() {
+    // Soil_Leaves is a solid full cube that happens to be alpha-tested; it still covers its face.
+    assertTrue(FaceOcclusion.hides(BlockMaterial.Solid, Opacity.Cutout, true));
+    assertTrue(FaceOcclusion.hides(BlockMaterial.Solid, Opacity.Solid, true));
+  }
+
+  @Test
+  @DisplayName("see-through cubes, plants and non-cubes do not hide the face")
+  void occlusionRejectsSeeThroughAndNonCubes() {
+    assertFalse(FaceOcclusion.hides(BlockMaterial.Solid, Opacity.Transparent, true));
+    assertFalse(FaceOcclusion.hides(BlockMaterial.Solid, Opacity.Semitransparent, true));
+    assertFalse(FaceOcclusion.hides(BlockMaterial.Empty, Opacity.Solid, true));
+    assertFalse(FaceOcclusion.hides(BlockMaterial.Solid, Opacity.Solid, false));
   }
 }

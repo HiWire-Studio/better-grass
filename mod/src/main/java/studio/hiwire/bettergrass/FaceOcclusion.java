@@ -31,8 +31,9 @@ public interface FaceOcclusion {
    *   <li>{@code Material.Solid} -- plants resolve to the default {@code Empty};
    *   <li>{@code isCubeDrawType()} -- plants are {@code DrawType.Model}, a cross-shaped mesh that
    *       covers almost nothing;
-   *   <li>{@code Opacity.Solid} -- glass and leaves are cubes you can see through, and the grass
-   *       side behind them should still be decided on its merits.
+   *   <li>an opacity that actually covers -- {@code Solid}, or {@code Cutout} for a texture that is
+   *       alpha-tested but still fills its face. {@code Transparent} and {@code Semitransparent}
+   *       are cubes you can see through, so the side behind them is decided on its merits.
    * </ul>
    */
   static FaceOcclusion fromBlockTypes() {
@@ -46,9 +47,21 @@ public interface FaceOcclusion {
         return false;
       }
 
-      return blockType.getMaterial() == BlockMaterial.Solid
-          && blockType.isCubeDrawType()
-          && blockType.getOpacity() == Opacity.Solid;
+      return hides(blockType.getMaterial(), blockType.getOpacity(), blockType.isCubeDrawType());
     };
+  }
+
+  /**
+   * The occlusion test itself, split out from the asset lookup so it can be exercised directly.
+   *
+   * @param material a face is only hidden by something solid; plants resolve to {@code Empty}
+   * @param opacity {@code Solid} or {@code Cutout} cover the face; the transparent modes do not
+   * @param cubeDrawType whether the block fills its cell, from {@code BlockType.isCubeDrawType()}
+   */
+  static boolean hides(
+      final BlockMaterial material, final Opacity opacity, final boolean cubeDrawType) {
+    return material == BlockMaterial.Solid
+        && cubeDrawType
+        && (opacity == Opacity.Solid || opacity == Opacity.Cutout);
   }
 }

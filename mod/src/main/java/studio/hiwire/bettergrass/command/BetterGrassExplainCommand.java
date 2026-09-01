@@ -131,7 +131,7 @@ public class BetterGrassExplainCommand extends AbstractPlayerCommand {
             desired == BetterGrassRule.NO_CHANGE
                 ? (exposed == 0
                     ? "no change: no exposed face (all sides hidden)"
-                    : "no change: no exposed face has grass diagonally below it")
+                    : "no change: the rule needs EVERY exposed face to qualify")
                 : "would convert to " + describe(desired));
 
     report(context, out);

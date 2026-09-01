@@ -20,14 +20,14 @@ import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
  *       less than that, a tuft of {@code Plant_Grass_Arid} included, leaves the face visible; see
  *       {@link FaceOcclusion};
  *   <li>if no face is exposed the block is left alone, whichever variant it currently is;
- *   <li>the block goes full when <em>any</em> exposed face qualifies.
+ *   <li>the block goes full only when <em>every</em> exposed face qualifies.
  * </ul>
  *
  * <p>That last point is an approximation. OptiFine decides each face independently, while a block
- * type here carries one texture set for all six faces, so the decision is all-or-nothing. Any
- * qualifying face is enough because the alternative leaves ordinary terrain fringed: a block one
- * step above a grass slope would stay dirt-sided merely because some other side drops to stone. The
- * price is that a non-qualifying side turns to grass too, so a corner can show grass above rock.
+ * type here carries one texture set for all six faces, so the decision is all-or-nothing. Requiring
+ * every exposed face to qualify keeps grass from ever appearing above bare rock: a corner that drops
+ * to grass on one side and to stone on the other stays fringed rather than showing grass over the
+ * stone. The price is that such a corner keeps its dirt edge on the side that did qualify.
  *
  * <p>The rule is total and order independent: it maps a position to a desired id using only the
  * occlusion and grass-ness of the neighbourhood, neither of which a Better Grass swap can change
@@ -103,9 +103,9 @@ public final class BetterGrassRule {
       }
     }
 
-    // Any qualifying face is enough. With no exposed face there is nothing to qualify, so this
-    // covers the fully-buried case too.
-    if (qualifyingFaces == 0) {
+    // Every exposed face must qualify. A block with no exposed face has nothing to show and is
+    // left alone.
+    if (exposedFaces == 0 || qualifyingFaces != exposedFaces) {
       return NO_CHANGE;
     }
 

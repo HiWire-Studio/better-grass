@@ -4,8 +4,6 @@ Grass covers the sides of blocks on hills and slopes, instead of leaving a strip
 
 ![Project Logo Banner](docs/images/banner.png)
 
-![Connection Showcase](docs/images/connection_showcase.png) 
-
 ![Placement Grass Update](docs/images/placement_grass_update.gif)
 
 ## Features
@@ -63,9 +61,8 @@ grass without installing anything.
 
 ## How It Works
 
-A grass block switches to its full-grass variant when an **exposed side has grass diagonally below
-it** - the stepped hillside case. Faces hidden behind a solid block are ignored, since they are
-never drawn, and a block with no exposed side is left alone.
+A grass block switches to its full-grass variant when **every exposed side has grass diagonally
+below it** - the stepped hillside case.
 
 Conversion happens in three places, so there is nothing to run by hand:
 
