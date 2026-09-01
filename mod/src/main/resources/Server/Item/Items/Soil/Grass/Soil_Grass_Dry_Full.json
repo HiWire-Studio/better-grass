@@ -1,0 +1,50 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Soil_Grass_Dry_Full.name"
+  },
+  "ItemLevel": 12,
+  "Parent": "Soil_Grass",
+  "Icon": "Icons/ItemsGenerated/Soil_Grass_Dry_Full.png",
+  "BlockType": {
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Soils",
+        "ItemId": "Soil_Dirt_Dry"
+      }
+    },
+    "Textures": [
+      {
+        "Down": "BlockTextures/Soil_Dirt_Dry.png",
+        "Sides": "BlockTextures/Soil_Grass_Dry_Side_Full_GS.png",
+        "Up": "BlockTextures/Soil_Grass_Dry_Top_GS.png",
+        "Weight": 1
+      }
+    ],
+    "TextureSideMask": null,
+    "BiomeTint": 100,
+    "BiomeTintDown": 0,
+    "Tint": [
+      "#f3d97c"
+    ],
+    "TintDown": [],
+    "TransitionTexture": "BlockTextures/Transition_Soil_Grass_Dry.png",
+    "TransitionToGroups": [
+      "Stone",
+      "Dirt",
+      "Dirt_Dark",
+      "Sand",
+      "Sand_White",
+      "Gravel",
+      "Soil_Mud_Dry",
+      "Grass_Burnt",
+      "Grass_Wet",
+      "Grass"
+    ],
+    "TextureComputedColor": "#F6E5DA",
+    "RandomTickProcedure": {
+      "AllowedTag": "Spreadable=Grass_Dry",
+      "RevertBlock": "Soil_Dirt_Dry"
+    },
+    "Group": "Grass_Dry"
+  }
+}

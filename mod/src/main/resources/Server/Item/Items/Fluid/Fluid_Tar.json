@@ -1,0 +1,93 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Fluid_Tar.name"
+  },
+  "Icon": "Icons/ItemsGenerated/Fluid_Tar.png",
+  "Categories": [
+    "Blocks.Fluids"
+  ],
+  "Interactions": {
+    "Secondary": {
+      "Interactions": [
+        {
+          "Type": "PlaceFluid",
+          "FluidToPlace": "Tar_Source"
+        }
+      ]
+    }
+  },
+  "BlockType": {
+    "DrawType": "Cube",
+    "Group": "Mud",
+    "Material": "Solid",
+    "TransitionTexture": "BlockTextures/Transition_Fluid_Tar.png",
+    "TransitionToGroups": [
+      "Dirt_Dry",
+      "Mud",
+      "Dirt",
+      "Soil",
+      "Grass",
+      "GrassDeep",
+      "GrassDeepSunny",
+      "Grass_Dry",
+      "Stone",
+      "Sand",
+      "Sand_White",
+      "Clay",
+      "Grass_Cold",
+      "Grass_Burnt",
+      "Grass_Wet"
+    ],
+    "TransitionToTag": "Fluid=Water",
+    "Effect": [
+      "Slime"
+    ],
+    "Flags": {},
+    "BlockParticleSetId": "Tar",
+    "Textures": [
+      {
+        "Weight": 1,
+        "All": "BlockTextures/Fluid_Tar.png"
+      }
+    ],
+    "ParticleColor": "#725650",
+    "BlockSoundSetId": "Mud",
+    "PhysicalMaterialId": "Dirt",
+    "Interactions": {
+      "Collision": {
+        "Cooldown": {
+          "Id": "SlowEffect",
+          "Cooldown": 0.1
+        },
+        "Interactions": [
+          {
+            "Type": "Condition",
+            "RequiredGameMode": "Adventure",
+            "Next": {
+              "Type": "ApplyEffect",
+              "EffectId": {
+                "Duration": 0.1,
+                "OverlapBehavior": "Overwrite",
+                "ApplicationEffects": {
+                  "HorizontalSpeedMultiplier": 0.2
+                },
+                "StatModifiers": {
+                  "Oxygen": -1
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "TextureComputedColor": "#352720"
+  },
+  "PlayerAnimationsId": "Block",
+  "Tags": {
+    "Material": [
+      "Fluid"
+    ]
+  },
+  "MaxStack": 1,
+  "ItemSoundSetId": "ISS_Blocks_Soft"
+}

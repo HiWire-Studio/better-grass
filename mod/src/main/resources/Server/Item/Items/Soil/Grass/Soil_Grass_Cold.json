@@ -1,0 +1,72 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Soil_Grass_Cold.name"
+  },
+  "Parent": "Soil_Grass",
+  "ItemLevel": 13,
+  "Icon": "Icons/ItemsGenerated/Soil_Grass_Cold.png",
+  "Recipe": {
+    "TimeSeconds": 0,
+    "Input": [
+      {
+        "ResourceTypeId": "Soils",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Fibre",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Id": "Farmingbench",
+        "Categories": [
+          "Decorative"
+        ]
+      }
+    ],
+    "OutputQuantity": 1
+  },
+  "BlockType": {
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Soils",
+        "ItemId": "Soil_Dirt_Cold"
+      }
+    },
+    "Textures": [
+      {
+        "Down": "BlockTextures/Soil_Dirt_Cold.png",
+        "Sides": "BlockTextures/Soil_Grass_Cold_Side.png",
+        "Up": "BlockTextures/Soil_Grass_Cold_Top.png",
+        "Weight": 1
+      }
+    ],
+    "TextureSideMask": "BlockTextures/Soil_Grass_Cold_Side_GS.png",
+    "TintUp": [
+      "#2db668"
+    ],
+    "TransitionToGroups": [
+      "Stone",
+      "Dirt",
+      "Dirt_Dark",
+      "Sand",
+      "Gravel",
+      "GrassDeep",
+      "GrassDeepSunny",
+      "Grass_Dry",
+      "Grass_Burnt",
+      "Grass_Wet",
+      "Grass"
+    ],
+    "TransitionTexture": "BlockTextures/Transition_Grass_Winter.png",
+    "ParticleColor": "#e7f0f3",
+    "RandomTickProcedure": {
+      "AllowedTag": "Spreadable=Grass_Cold",
+      "RevertBlock": "Soil_Dirt_Cold"
+    },
+    "TextureComputedColor": "#E4EFF2",
+    "Group": "Grass_Cold"
+  }
+}

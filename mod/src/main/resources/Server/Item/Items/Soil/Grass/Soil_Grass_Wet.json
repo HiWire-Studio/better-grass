@@ -1,0 +1,77 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Soil_Grass_Wet.name"
+  },
+  "Parent": "Soil_Grass",
+  "ItemLevel": 14,
+  "Categories": [
+    "Blocks.Soils"
+  ],
+  "Recipe": {
+    "TimeSeconds": 0,
+    "Input": [
+      {
+        "ResourceTypeId": "Soils",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Fibre",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Id": "Farmingbench",
+        "Categories": [
+          "Decorative"
+        ]
+      }
+    ],
+    "OutputQuantity": 1
+  },
+  "BlockType": {
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Soils",
+        "ItemId": "Soil_Dirt"
+      }
+    },
+    "BlockParticleSetId": "Grass_Earth",
+    "Textures": [
+      {
+        "Down": "BlockTextures/Soil_Dirt_Wet.png",
+        "Sides": "BlockTextures/Soil_Grass_Wet_Side.png",
+        "Up": "BlockTextures/Soil_Grass_Wet_GS.png",
+        "Weight": 1
+      }
+    ],
+    "BiomeTintUp": 100,
+    "TextureSideMask": "BlockTextures/Soil_Grass_Wet_Side_GS.png",
+    "TintUp": [
+      "#4aa17a"
+    ],
+    "TransitionTexture": "BlockTextures/Transition_Soil_Grass_GS.png",
+    "ParticleColor": "#eae8e8",
+    "TextureComputedColor": "#EAE8E8",
+    "RandomTickProcedure": {
+      "AllowedTag": "Spreadable=Grass",
+      "RevertBlock": "Soil_Dirt_Wet"
+    },
+    "Group": "Grass_Wet",
+    "TransitionToGroups": [
+      "Stone",
+      "Dirt",
+      "Dirt_Dark",
+      "Sand",
+      "Sand_White",
+      "Gravel",
+      "Wood",
+      "Cobble",
+      "Grass"
+    ]
+  },
+  "$Comment": " ",
+  "Icon": "Icons/ItemsGenerated/Soil_Grass_Wet.png",
+  "ItemSoundSetId": "ISS_Blocks_Soft"
+}

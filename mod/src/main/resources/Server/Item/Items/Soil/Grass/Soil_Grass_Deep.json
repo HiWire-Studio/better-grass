@@ -1,0 +1,88 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Soil_Grass_Deep.name"
+  },
+  "ItemLevel": 5,
+  "Parent": "Soil_Grass",
+  "Icon": "Icons/ItemsGenerated/Soil_Grass_Deep.png",
+  "Recipe": {
+    "TimeSeconds": 0,
+    "Input": [
+      {
+        "ResourceTypeId": "Soils",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Fibre",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Id": "Farmingbench",
+        "Categories": [
+          "Decorative"
+        ]
+      }
+    ],
+    "OutputQuantity": 1
+  },
+  "BlockType": {
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Soils",
+        "ItemId": "Soil_Dirt"
+      }
+    },
+    "Textures": [
+      {
+        "Down": "BlockTextures/Soil_Dirt_Lush.png",
+        "Sides": "BlockTextures/Soil_Grass_Lush_Side.png",
+        "Up": "BlockTextures/Soil_Grass_Lush_Top_GS.png",
+        "Weight": 1
+      }
+    ],
+    "ParticleColor": "#47811e",
+    "TextureSideMask": "BlockTextures/Soil_Grass_Lush_GS.png",
+    "TransitionToGroups": [
+      "Stone",
+      "Dirt",
+      "Dirt_Dark",
+      "Sand",
+      "Sand_White",
+      "Gravel",
+      "Wood",
+      "GrassDeepSunny",
+      "Grass_Dry",
+      "Grass_Burnt",
+      "Grass_Wet",
+      "Grass"
+    ],
+    "TransitionTexture": "BlockTextures/Transition_Soil_Grass_Lush_GS.png",
+    "BiomeTint": 0,
+    "BiomeTintDown": 0,
+    "Tint": [
+      "#32941f"
+    ],
+    "TintDown": [],
+    "TextureComputedColor": "#D4D4D4",
+    "RandomTickProcedure": {
+      "AllowedTag": "Spreadable=Grass",
+      "RevertBlock": "Soil_Dirt_Lush"
+    },
+    "Group": "GrassDeep"
+  },
+  "IconProperties": {
+    "Scale": 0.58823,
+    "Rotation": [
+      22.5,
+      45,
+      22.5
+    ],
+    "Translation": [
+      0,
+      -13.5
+    ]
+  }
+}

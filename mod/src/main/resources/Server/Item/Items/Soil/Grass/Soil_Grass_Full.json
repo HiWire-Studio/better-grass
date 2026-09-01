@@ -1,0 +1,59 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Soil_Grass_Full.name"
+  },
+  "ItemLevel": 4,
+  "Parent": "Soil_Grass",
+  "Icon": "Icons/ItemsGenerated/Soil_Grass_Full.png",
+  "Recipe": {
+    "TimeSeconds": 0,
+    "Input": [
+      {
+        "ResourceTypeId": "Soils",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Fibre",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Id": "Farmingbench",
+        "Categories": [
+          "Decorative"
+        ]
+      }
+    ],
+    "OutputQuantity": 1
+  },
+  "BlockType": {
+    "Textures": [
+      {
+        "Down": "BlockTextures/Soil_Dirt.png",
+        "Sides": "BlockTextures/Soil_Grass_Side_Full_GS.png",
+        "Up": "BlockTextures/Soil_Grass_GS.png",
+        "Weight": 1
+      }
+    ],
+    "TextureSideMask": null,
+    "BiomeTint": 100,
+    "BiomeTintDown": 0,
+    "Tint": [
+      "#67b62d"
+    ],
+    "TintDown": [],
+    "TransitionToGroups": [
+      "Stone",
+      "Dirt",
+      "Dirt_Dark",
+      "Sand",
+      "Sand_White",
+      "Gravel",
+      "Wood",
+      "Cobble"
+    ],
+    "TextureComputedColor": "#EFEFEF"
+  }
+}

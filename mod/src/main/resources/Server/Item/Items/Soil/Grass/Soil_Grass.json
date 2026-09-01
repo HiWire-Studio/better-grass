@@ -1,0 +1,146 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Soil_Grass.name"
+  },
+  "ItemLevel": 3,
+  "Icon": "Icons/ItemsGenerated/Soil_Grass.png",
+  "Categories": [
+    "Blocks.Soils"
+  ],
+  "SubCategory": "GrassAndDirt",
+  "PlayerAnimationsId": "Block",
+  "Set": "Grass",
+  "Recipe": {
+    "TimeSeconds": 0,
+    "Input": [
+      {
+        "ResourceTypeId": "Soils",
+        "Quantity": 1
+      },
+      {
+        "ItemId": "Ingredient_Fibre",
+        "Quantity": 1
+      }
+    ],
+    "BenchRequirement": [
+      {
+        "Type": "Crafting",
+        "Id": "Farmingbench",
+        "Categories": [
+          "Decorative"
+        ]
+      }
+    ],
+    "OutputQuantity": 1
+  },
+  "BlockType": {
+    "Material": "Solid",
+    "DrawType": "Cube",
+    "Group": "Grass",
+    "Flags": {},
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Soils",
+        "ItemId": "Soil_Dirt"
+      }
+    },
+    "BlockParticleSetId": "Grass_Earth",
+    "Textures": [
+      {
+        "Down": "BlockTextures/Soil_Dirt.png",
+        "Sides": "BlockTextures/Soil_Grass_Side.png",
+        "Up": "BlockTextures/Soil_Grass_GS.png",
+        "Weight": 1
+      },
+      {
+        "Down": "BlockTextures/Soil_Dirt.png",
+        "Sides": "BlockTextures/Soil_Grass_Side.png",
+        "Up": "BlockTextures/Soil_Grass_GS_02.png",
+        "Weight": 1
+      }
+    ],
+    "BlockSoundSetId": "Grass",
+    "PhysicalMaterialId": "Foliage",
+    "BiomeTintUp": 100,
+    "TextureSideMask": "BlockTextures/Soil_grass_Side_Mask_GS.png",
+    "TintUp": [
+      "#67b62d"
+    ],
+    "TransitionTexture": "BlockTextures/Transition_Soil_Grass_GS.png",
+    "TransitionToGroups": [
+      "Stone",
+      "Dirt",
+      "Dirt_Dark",
+      "Sand",
+      "Sand_White",
+      "Gravel",
+      "Wood",
+      "Cobble"
+    ],
+    "ParticleColor": "#eae8e8",
+    "TransitionToTag": "Fluid=Water",
+    "RandomTickProcedure": {
+      "Type": "SpreadTo",
+      "AllowedAboveFluids": [
+        "Empty"
+      ],
+      "AllowedTag": "Spreadable=Grass",
+      "SpreadDirections": [
+        {
+          "X": -1,
+          "Z": 0
+        },
+        {
+          "X": 1,
+          "Z": 0
+        },
+        {
+          "X": 0,
+          "Z": -1
+        },
+        {
+          "X": 0,
+          "Z": 1
+        },
+        {
+          "X": -1,
+          "Z": -1
+        },
+        {
+          "X": 1,
+          "Z": -1
+        },
+        {
+          "X": -1,
+          "Z": 1
+        },
+        {
+          "X": 1,
+          "Z": 1
+        }
+      ],
+      "MaxY": 1,
+      "MinY": -1,
+      "RevertBlock": "Soil_Dirt"
+    },
+    "TextureComputedColor": "#EFEFEF"
+  },
+  "Tags": {
+    "Type": [
+      "Soil"
+    ]
+  },
+  "IconProperties": {
+    "Scale": 0.3,
+    "Rotation": [
+      339.295,
+      229.107,
+      337.792
+    ],
+    "Translation": [
+      0,
+      -6
+    ]
+  },
+  "ItemSoundSetId": "ISS_Blocks_Soft"
+}

@@ -1,0 +1,49 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Soil_Grass_Burnt_Full.name"
+  },
+  "ItemLevel": 8,
+  "Parent": "Soil_Grass",
+  "Icon": "Icons/ItemsGenerated/Soil_Grass_Burnt_Full.png",
+  "BlockType": {
+    "Gathering": {
+      "Breaking": {
+        "GatherType": "Soils",
+        "ItemId": "Soil_Dirt_Burnt"
+      }
+    },
+    "Textures": [
+      {
+        "Down": "BlockTextures/Soil_Dirt_Burnt.png",
+        "Sides": "BlockTextures/Soil_Grass_Burnt_Side_Full_GS.png",
+        "Up": "BlockTextures/Soil_Grass_Burnt_Top_GS.png",
+        "Weight": 1
+      }
+    ],
+    "TextureSideMask": null,
+    "BiomeTint": 100,
+    "BiomeTintDown": 0,
+    "Tint": [
+      "#67b62d"
+    ],
+    "TintDown": [],
+    "TransitionTexture": "BlockTextures/Transition_Soil_Grass_Burnt.png",
+    "TransitionToGroups": [
+      "Stone",
+      "Dirt",
+      "Dirt_Dark",
+      "Sand",
+      "Sand_White",
+      "Gravel",
+      "Grass_Wet",
+      "Grass"
+    ],
+    "RandomTickProcedure": {
+      "AllowedTag": "Spreadable=Grass_Burnt",
+      "RevertBlock": "Soil_Dirt_Burnt"
+    },
+    "ParticleColor": "#e7f0f3",
+    "TextureComputedColor": "#ECECEC",
+    "Group": "Grass_Burnt"
+  }
+}

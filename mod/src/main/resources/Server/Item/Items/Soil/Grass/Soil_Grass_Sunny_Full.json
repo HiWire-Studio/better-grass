@@ -1,0 +1,46 @@
+{
+  "TranslationProperties": {
+    "Name": "server.items.Soil_Grass_Sunny_Full.name"
+  },
+  "ItemLevel": 6,
+  "Parent": "Soil_Grass",
+  "Icon": "Icons/ItemsGenerated/Soil_Grass_Sunny_Full.png",
+  "BlockType": {
+    "Textures": [
+      {
+        "Down": "BlockTextures/Soil_Dirt.png",
+        "Sides": "BlockTextures/Soil_Grass_Lush_Full_GS.png",
+        "Up": "BlockTextures/Soil_Grass_Lush_Top_GS.png",
+        "Weight": 1
+      }
+    ],
+    "TextureSideMask": null,
+    "BiomeTintUp": 0,
+    "TintUp": [
+      "#7dba33"
+    ],
+    "TransitionTexture": "BlockTextures/Transition_Soil_Grass_Lush_GS.png",
+    "TransitionToGroups": [
+      "Stone",
+      "Dirt",
+      "Dirt_Dark",
+      "Sand",
+      "Sand_White",
+      "Gravel",
+      "Cobble",
+      "Grass_Dry",
+      "Grass_Burnt",
+      "Grass_Wet",
+      "Grass"
+    ],
+    "ParticleColor": "#709d2c",
+    "TextureComputedColor": "#709D2C",
+    "Group": "GrassDeepSunny",
+    "Tint": [
+      "#7dba33"
+    ],
+    "TintDown": [],
+    "BiomeTint": 0,
+    "BiomeTintDown": 0
+  }
+}
