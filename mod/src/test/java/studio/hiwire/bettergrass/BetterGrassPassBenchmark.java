@@ -1,11 +1,8 @@
 package studio.hiwire.bettergrass;
 
 import com.hypixel.hytale.math.util.ChunkUtil;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.environment.EnvironmentChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.palette.IntBytePalette;
-import com.hypixel.hytale.server.core.universe.world.chunk.palette.ShortBytePalette;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.ChunkSection;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +10,7 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 /**
  * Measures {@link BetterGrassPass#applyToFreshChunk} over a synthetic but realistically shaped
- * chunk, using the engine's own {@link BlockChunk} and {@link BlockSection}.
+ * chunk column, using the engine's own {@link ChunkSection} and {@link BlockSection}.
  *
  * <p>Off by default so it does not slow the normal build. Run with:
  *
@@ -36,21 +33,31 @@ class BetterGrassPassBenchmark {
       GrassVariants.resolve(
           key -> BLOCK_IDS.getOrDefault(key, GrassVariants.NOT_FOUND), (base, full) -> true);
 
+  /** One chunk column as the pre-load hook sees it: section metadata and block data by section y. */
+  private record TerrainColumn(ChunkSection[] chunkSections, BlockSection[] blockSections) {
+
+    int convert(final GrassVariants variants, final FaceOcclusion occlusion) {
+      return BetterGrassPass.applyToFreshChunk(
+          0, 0, chunkSections, blockSections, variants, occlusion);
+    }
+
+    BlockAccess access() {
+      return BlockAccessors.ofChunkColumn(0, 0, blockSections);
+    }
+  }
+
   /**
    * Builds a chunk with a rolling grass surface: one grass block per column at a height that varies
    * by a few blocks, dirt beneath it. That is the shape the rule actually costs money on -- every
    * column holds exactly one grass block and slopes give it real work to do.
    */
-  private BlockChunk buildTerrainChunk() {
+  private TerrainColumn buildTerrainChunk() {
+    final var chunkSections = new ChunkSection[ChunkUtil.HEIGHT_SECTIONS];
     final var sections = new BlockSection[ChunkUtil.HEIGHT_SECTIONS];
     for (int i = 0; i < sections.length; i++) {
+      chunkSections[i] = new ChunkSection(null, 0, i, 0, false);
       sections[i] = new BlockSection();
     }
-
-    final var chunk =
-        new BlockChunk(
-            new ShortBytePalette(), new IntBytePalette(), new EnvironmentChunk(), sections);
-    chunk.load(0, 0);
 
     for (int x = 0; x < ChunkUtil.SIZE; x++) {
       for (int z = 0; z < ChunkUtil.SIZE; z++) {
@@ -61,14 +68,14 @@ class BetterGrassPassBenchmark {
                 + (int) (3 * Math.cos(z * 0.28))
                 + (int) (2 * Math.sin((x + z) * 0.16));
 
-        chunk.setBlock(x, surfaceY, z, GRASS_ID, 0, 0);
+        sections[surfaceY >> ChunkUtil.BITS].set(x, surfaceY, z, GRASS_ID, 0, 0);
         for (int y = surfaceY - 4; y < surfaceY; y++) {
-          chunk.setBlock(x, y, z, DIRT_ID, 0, 0);
+          sections[y >> ChunkUtil.BITS].set(x, y, z, DIRT_ID, 0, 0);
         }
       }
     }
 
-    return chunk;
+    return new TerrainColumn(chunkSections, sections);
   }
 
   @Test
@@ -78,7 +85,7 @@ class BetterGrassPassBenchmark {
     final int measured = 500;
 
     for (int i = 0; i < warmup; i++) {
-      BetterGrassPass.applyToFreshChunk(buildTerrainChunk(), variants, occlusion);
+      buildTerrainChunk().convert(variants, occlusion);
     }
 
     long totalNanos = 0;
@@ -86,7 +93,7 @@ class BetterGrassPassBenchmark {
     for (int i = 0; i < measured; i++) {
       final var chunk = buildTerrainChunk();
       final long start = System.nanoTime();
-      changed = BetterGrassPass.applyToFreshChunk(chunk, variants, occlusion);
+      changed = chunk.convert(variants, occlusion);
       totalNanos += System.nanoTime() - start;
     }
 
@@ -109,7 +116,7 @@ class BetterGrassPassBenchmark {
   @DisplayName("benchmark: the rule alone, no chunk walking")
   void benchmarkRuleOnly() {
     final var chunk = buildTerrainChunk();
-    final BlockAccess access = BlockAccessors.ofChunkColumn(chunk);
+    final BlockAccess access = chunk.access();
 
     // Every position the pass would evaluate, resolved once so the loop measures only the rule.
     final int surfaceSamples = ChunkUtil.SIZE * ChunkUtil.SIZE;
@@ -158,7 +165,7 @@ class BetterGrassPassBenchmark {
   @DisplayName("benchmark: cost of a section-ref lookup per read vs a direct column read")
   void benchmarkAccessorShape() {
     final var chunk = buildTerrainChunk();
-    final BlockAccess direct = BlockAccessors.ofChunkColumn(chunk);
+    final BlockAccess direct = chunk.access();
 
     final int iterations = 500_000;
     long sink = 0;
@@ -183,7 +190,7 @@ class BetterGrassPassBenchmark {
   @Test
   @DisplayName("sanity: the terrain actually produces conversions")
   void terrainProducesConversions() {
-    final int changed = BetterGrassPass.applyToFreshChunk(buildTerrainChunk(), variants, occlusion);
+    final int changed = buildTerrainChunk().convert(variants, occlusion);
     if (changed <= 0) {
       throw new AssertionError("benchmark terrain converted nothing; the numbers would be junk");
     }
@@ -194,16 +201,16 @@ class BetterGrassPassBenchmark {
   @DisplayName("benchmark: cost of re-scanning a chunk that was already converted")
   void benchmarkReloadCost() {
     final var fresh = buildTerrainChunk();
-    BetterGrassPass.applyToFreshChunk(fresh, variants, occlusion); // convert once
+    fresh.convert(variants, occlusion); // convert once
 
     for (int i = 0; i < 200; i++) {
-      BetterGrassPass.applyToFreshChunk(fresh, variants, occlusion);
+      fresh.convert(variants, occlusion);
     }
     final int measured = 500;
     long nanos = 0;
     for (int i = 0; i < measured; i++) {
       final long t = System.nanoTime();
-      BetterGrassPass.applyToFreshChunk(fresh, variants, occlusion);
+      fresh.convert(variants, occlusion);
       nanos += System.nanoTime() - t;
     }
 

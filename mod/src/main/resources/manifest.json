@@ -1,7 +1,7 @@
 {
     "Group": "HiWire",
     "Name": "BetterGrass",
-    "Version": "0.1.0",
+    "Version": "0.2.0",
     "Description": "Grass covers the sides of blocks on hills and slopes, instead of leaving a strip of bare dirt. Also fixes how the different grass types blend into each other.",
     "Authors": [
         {
@@ -9,6 +9,6 @@
         }
     ],
     "Main": "studio.hiwire.bettergrass.BetterGrassPlugin",
-    "ServerVersion": "0.6.x",
+    "ServerVersion": "0.7.x",
     "IncludesAssetPack": true
 }

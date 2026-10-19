@@ -1,10 +1,13 @@
 package studio.hiwire.bettergrass;
 
 import com.hypixel.hytale.event.EventRegistration;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.universe.world.World;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.ChunkColumn;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.ChunkSection;
 import com.hypixel.hytale.server.core.universe.world.events.ChunkPreLoadProcessEvent;
 import java.util.logging.Level;
 import javax.annotation.Nonnull;
@@ -199,11 +202,33 @@ public final class BetterGrassFeature {
       return;
     }
 
-    final var blockChunk = event.getHolder().getComponent(BlockChunk.getComponentType());
-    if (blockChunk == null) {
+    final var column = event.getHolder().getComponent(ChunkColumn.getComponentType());
+    if (column == null) {
       return;
     }
 
-    BetterGrassPass.applyToFreshChunk(blockChunk, grassVariants, occlusion);
+    final var sectionHolders = column.getSectionHolders();
+    if (sectionHolders == null) {
+      return;
+    }
+
+    // Only the legacy height range: the rule reads everything outside it as empty.
+    final int sectionCount = Math.min(sectionHolders.length, ChunkUtil.HEIGHT_SECTIONS);
+    final var chunkSections = new ChunkSection[sectionCount];
+    final var blockSections = new BlockSection[sectionCount];
+    for (int i = 0; i < sectionCount; i++) {
+      final var sectionHolder = sectionHolders[i];
+      if (sectionHolder == null) {
+        continue;
+      }
+      chunkSections[i] = sectionHolder.getComponent(ChunkSection.getComponentType());
+      if (chunkSections[i] != null) {
+        blockSections[i] = sectionHolder.ensureAndGetComponent(BlockSection.getComponentType());
+      }
+    }
+
+    final var chunk = event.getChunk();
+    BetterGrassPass.applyToFreshChunk(
+        chunk.getX(), chunk.getZ(), chunkSections, blockSections, grassVariants, occlusion);
   }
 }

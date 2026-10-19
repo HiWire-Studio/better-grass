@@ -2,7 +2,6 @@ package studio.hiwire.bettergrass;
 
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import javax.annotation.Nonnull;
@@ -21,12 +20,13 @@ public final class BlockAccessors {
    * declines to decide. The cost is that the outermost block of each edge is left alone until
    * the chunk is live and {@code BetterGrassPass.applyToChunkEdges} can read across the
    * boundary.
+   *
+   * @param sections the column's block data, indexed by section y; a missing section reads as
+   *     {@link BlockType#UNKNOWN_ID}
    */
   @Nonnull
-  public static BlockAccess ofChunkColumn(@Nonnull final BlockChunk chunk) {
-    final int chunkX = chunk.getX();
-    final int chunkZ = chunk.getZ();
-
+  public static BlockAccess ofChunkColumn(
+      final int chunkX, final int chunkZ, @Nonnull final BlockSection[] sections) {
     return (x, y, z) -> {
       if (y < ChunkUtil.MIN_Y || y >= ChunkUtil.HEIGHT) {
         return BlockType.EMPTY_ID;
@@ -34,7 +34,11 @@ public final class BlockAccessors {
       if ((x >> ChunkUtil.BITS) != chunkX || (z >> ChunkUtil.BITS) != chunkZ) {
         return BlockType.UNKNOWN_ID;
       }
-      return chunk.getBlock(x, y, z);
+      final int sectionIndex = y >> ChunkUtil.BITS;
+      if (sectionIndex >= sections.length || sections[sectionIndex] == null) {
+        return BlockType.UNKNOWN_ID;
+      }
+      return sections[sectionIndex].get(x, y, z);
     };
   }
 

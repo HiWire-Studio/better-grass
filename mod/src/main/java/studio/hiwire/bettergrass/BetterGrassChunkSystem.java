@@ -8,7 +8,6 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.HolderSystem;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import javax.annotation.Nonnull;
 
@@ -108,13 +107,6 @@ public final class BetterGrassChunkSystem extends HolderSystem<ChunkStore> {
       return;
     }
 
-    final var store = chunkStore.getStore();
-    final var worldChunk = store.getComponent(chunkRef, WorldChunk.getComponentType());
-    final var blockChunk = store.getComponent(chunkRef, BlockChunk.getComponentType());
-    if (worldChunk == null || blockChunk == null) {
-      return;
-    }
-
-    BetterGrassPass.applyToChunkEdges(worldChunk, blockChunk, chunkStore, variants, occlusion);
+    BetterGrassPass.applyToChunkEdges(chunkStore, chunkX, chunkZ, variants, occlusion);
   }
 }

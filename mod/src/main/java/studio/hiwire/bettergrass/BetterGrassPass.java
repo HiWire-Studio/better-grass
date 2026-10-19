@@ -1,11 +1,15 @@
 package studio.hiwire.bettergrass;
 
+import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.util.ChunkUtil;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.asset.type.blocktype.config.RotationTuple;
 import com.hypixel.hytale.server.core.universe.world.SetBlockSettings;
-import com.hypixel.hytale.server.core.universe.world.chunk.BlockChunk;
-import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.chunk.BlockOperations;
 import com.hypixel.hytale.server.core.universe.world.chunk.section.BlockSection;
+import com.hypixel.hytale.server.core.universe.world.chunk.section.ChunkSection;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
+import com.hypixel.hytale.server.core.util.FillerBlockUtil;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.function.IntConsumer;
@@ -17,9 +21,9 @@ import javax.annotation.Nullable;
  *
  * <p>Three entry points, because the callers write blocks very differently. {@link
  * #applyToFreshChunk} runs from the pre-load hook on a chunk nobody has been sent yet, so it writes
- * straight into the {@link BlockChunk}. {@link #applyToChunkEdges} and {@link #applyAt} run on the
- * world thread over live chunks and go through {@link WorldChunk#setBlock} so clients are told
- * about the change.
+ * straight into the section holders via {@link BlockOperations#setBlockPreLoad}. {@link
+ * #applyToChunkEdges} and {@link #applyAt} run on the world thread over live chunks and go through
+ * {@link BlockOperations#setBlock} so clients are told about the change.
  *
  * <p>Both walk only the blocks that are actually grass: {@code BlockSection} keeps a palette, so
  * {@code containsAny} rejects a section in one lookup and {@code find} enumerates just the matching
@@ -49,6 +53,7 @@ public final class BetterGrassPass {
   private interface GrassBlockVisitor {
     void visit(
         @Nonnull BlockSection section,
+        int sectionIndex,
         int index,
         int blockId,
         int localX,
@@ -59,38 +64,48 @@ public final class BetterGrassPass {
   }
 
   /**
-   * Converts grass in a chunk that is still being loaded, writing directly into the block chunk.
+   * Converts grass in a chunk that is still being loaded, writing directly into its sections.
    *
    * <p>Only positions whose whole neighbourhood lies inside this column can be decided here; see
    * {@link BlockAccessors#ofChunkColumn}. Edge blocks are left to {@link #applyToChunkEdges},
    * which runs once the chunk is live and its neighbours are readable.
    *
+   * @param chunkSections the column's sections, indexed by section y
+   * @param blockSections the matching block data, indexed by section y
    * @return the number of blocks changed
    */
   public static int applyToFreshChunk(
-      @Nonnull final BlockChunk chunk,
+      final int chunkX,
+      final int chunkZ,
+      @Nonnull final ChunkSection[] chunkSections,
+      @Nonnull final BlockSection[] blockSections,
       @Nonnull final GrassVariants variants,
       @Nonnull final FaceOcclusion occlusion) {
-    final BlockAccess access = BlockAccessors.ofChunkColumn(chunk);
+    final BlockAccess access = BlockAccessors.ofChunkColumn(chunkX, chunkZ, blockSections);
     final int[] changed = {0};
 
     forEachGrassBlock(
-        chunk,
+        chunkX,
+        chunkZ,
+        blockSections,
         variants.allGrassIds(),
-        (section, index, blockId, localX, localZ, worldX, worldY, worldZ) -> {
+        (section, sectionIndex, index, blockId, localX, localZ, worldX, worldY, worldZ) -> {
           final int desired =
               BetterGrassRule.desiredBlock(access, variants, occlusion, worldX, worldY, worldZ);
           if (desired == BetterGrassRule.NO_CHANGE) {
             return;
           }
-          chunk.setBlock(
-              localX,
+          if (BlockOperations.setBlockPreLoad(
+              chunkSections[sectionIndex],
+              section,
+              worldX,
               worldY,
-              localZ,
+              worldZ,
               desired,
               section.getRotationIndex(index),
-              section.getFiller(index));
-          changed[0]++;
+              section.getFiller(index))) {
+            changed[0]++;
+          }
         });
 
     return changed[0];
@@ -107,18 +122,34 @@ public final class BetterGrassPass {
    * @return the number of blocks changed
    */
   public static int applyToChunkEdges(
-      @Nonnull final WorldChunk worldChunk,
-      @Nonnull final BlockChunk chunk,
       @Nonnull final ChunkStore chunkStore,
+      final int chunkX,
+      final int chunkZ,
       @Nonnull final GrassVariants variants,
       @Nonnull final FaceOcclusion occlusion) {
     final BlockAccess access = BlockAccessors.ofLoadedChunks(chunkStore);
+    final var store = chunkStore.getStore();
+
+    @SuppressWarnings("unchecked")
+    final Ref<ChunkStore>[] sectionRefs = new Ref[ChunkUtil.HEIGHT_SECTIONS];
+    final var blockSections = new BlockSection[ChunkUtil.HEIGHT_SECTIONS];
+    for (int sectionIndex = 0; sectionIndex < ChunkUtil.HEIGHT_SECTIONS; sectionIndex++) {
+      final var sectionRef = chunkStore.getChunkSectionReference(chunkX, sectionIndex, chunkZ);
+      if (sectionRef == null || !sectionRef.isValid()) {
+        continue;
+      }
+      sectionRefs[sectionIndex] = sectionRef;
+      blockSections[sectionIndex] = store.getComponent(sectionRef, BlockSection.getComponentType());
+    }
+
     final int[] changed = {0};
 
     forEachGrassBlock(
-        chunk,
+        chunkX,
+        chunkZ,
+        blockSections,
         variants.allGrassIds(),
-        (section, index, blockId, localX, localZ, worldX, worldY, worldZ) -> {
+        (section, sectionIndex, index, blockId, localX, localZ, worldX, worldY, worldZ) -> {
           if (localX != 0
               && localX != ChunkUtil.SIZE_MINUS_1
               && localZ != 0
@@ -131,7 +162,8 @@ public final class BetterGrassPass {
           if (desired == BetterGrassRule.NO_CHANGE) {
             return;
           }
-          if (worldChunk.setBlock(worldX, worldY, worldZ, desired, SETTINGS)) {
+          if (setLiveBlock(
+              chunkStore, sectionRefs[sectionIndex], worldX, worldY, worldZ, desired)) {
             changed[0]++;
           }
         });
@@ -160,40 +192,68 @@ public final class BetterGrassPass {
       return false;
     }
 
-    final var chunkRef = chunkStore.getChunkReference(ChunkUtil.indexChunkFromBlock(x, z));
-    if (chunkRef == null || !chunkRef.isValid()) {
+    final var sectionRef = chunkStore.getChunkSectionReferenceAtBlock(x, y, z);
+    if (sectionRef == null || !sectionRef.isValid()) {
       return false;
     }
 
-    final var worldChunk =
-        chunkStore.getStore().getComponent(chunkRef, WorldChunk.getComponentType());
-    if (worldChunk == null) {
-      return false;
-    }
-
-    return worldChunk.setBlock(x, y, z, desired, SETTINGS);
+    return setLiveBlock(chunkStore, sectionRef, x, y, z, desired);
   }
 
   /**
-   * Visits every block in {@code chunk} whose id is in {@code grassIds}.
+   * Writes one block into a live section, unrotated and without filler, the same way the engine's
+   * own one-off block changes do.
+   */
+  private static boolean setLiveBlock(
+      @Nonnull final ChunkStore chunkStore,
+      @Nonnull final Ref<ChunkStore> sectionRef,
+      final int x,
+      final int y,
+      final int z,
+      final int blockId) {
+    final BlockType blockType = BlockType.getAssetMap().getAsset(blockId);
+    if (blockType == null) {
+      return false;
+    }
+
+    return BlockOperations.setBlock(
+        chunkStore,
+        sectionRef,
+        x,
+        y,
+        z,
+        blockId,
+        blockType,
+        RotationTuple.NONE_INDEX,
+        FillerBlockUtil.NO_FILLER,
+        SETTINGS);
+  }
+
+  /**
+   * Visits every block in the column whose id is in {@code grassIds}.
    *
    * <p>Indices are collected per section before being visited, so the visitor is free to write
    * blocks without mutating the palette that is being enumerated.
+   *
+   * @param sections the column's block data, indexed by section y; missing sections are skipped
    */
   private static void forEachGrassBlock(
-      @Nonnull final BlockChunk chunk,
+      final int chunkX,
+      final int chunkZ,
+      @Nonnull final BlockSection[] sections,
       @Nonnull final IntList grassIds,
       @Nonnull final GrassBlockVisitor visitor) {
     if (grassIds.isEmpty()) {
       return;
     }
 
-    final int chunkBlockX = chunk.getX() << ChunkUtil.BITS;
-    final int chunkBlockZ = chunk.getZ() << ChunkUtil.BITS;
+    final int chunkBlockX = chunkX << ChunkUtil.BITS;
+    final int chunkBlockZ = chunkZ << ChunkUtil.BITS;
     final var indices = new IntArrayList();
+    final int sectionCount = Math.min(sections.length, ChunkUtil.HEIGHT_SECTIONS);
 
-    for (int sectionIndex = 0; sectionIndex < ChunkUtil.HEIGHT_SECTIONS; sectionIndex++) {
-      @Nullable final BlockSection section = chunk.getSectionAtIndex(sectionIndex);
+    for (int sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
+      @Nullable final BlockSection section = sections[sectionIndex];
       if (section == null || section.isSolidAir() || !section.containsAny(grassIds)) {
         continue;
       }
@@ -213,6 +273,7 @@ public final class BetterGrassPass {
 
         visitor.visit(
             section,
+            sectionIndex,
             index,
             section.get(index),
             localX,

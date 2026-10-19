@@ -1,4 +1,4 @@
-# HiWire - BetterGrass v0.1.0
+# HiWire - BetterGrass v0.2.0
 
 Mod that makes grass cover the sides of blocks on hills and slopes, instead of leaving a strip of bare dirt.
 
